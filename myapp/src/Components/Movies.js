@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { ids } from "../assets/movies.json"
+import Grid from './Grid';
+import Popup from "reactjs-popup";
 const axios = require('axios');
 
 class Movies extends Component {
@@ -34,11 +36,28 @@ class Movies extends Component {
     }
 
     render() {
-        console.log(this.state.movies)
+        console.log(this.state.movies[0])
+        const movies = this.state.movies.map(m =>
+            <Popup className="popup" trigger={<img src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
+                <div className="movie-popup">
+                    <img className="movie-poster" src={m.Poster}/>                        
+                    <div className="movie-info">
+                        <h1>{m.Title}</h1>
+                        <div className="imdb-rating">IMDB Rating: {m.imdbRating}</div>
+                        <p><b>Director:</b> {m.Director}</p>
+                        <p><b>Released:</b> {m.Released}</p>
+                        <p><b>Synopsis:</b> {m.Plot}</p>
+                    </div>
+                </div>
+            </Popup>
+        )
         return (
-            this.state.movies.map(m => (
-                <h1>{m.Title}</h1>
-            ))
+            <div>
+                <h1>
+                    Movies
+                </h1>
+                <Grid items={movies}/>
+            </div>
         );
     }
 }

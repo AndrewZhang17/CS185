@@ -1,3 +1,8 @@
+html {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
 .tab-list {
     position: fixed;
     top: 0;
@@ -219,4 +224,36 @@ iframe {
 @keyframes new-post {
     from {background-color: #42BFDD;}
     to {background-color: transparent;}
+}
+
+.popup-content {
+    width: 50% !important;
+    height: fit-content;
+}
+
+.movie-popup {
+    box-sizing: border-box;
+    height: 100%;
+    padding: 1em;
+    display: grid;
+    grid-template-columns: 30% 70%;
+    grid-gap: 1em;
+    align-items: center;
+}
+
+.movie-poster {
+    width: 100%;
+    object-fit: contain;
+}
+
+.movie-info {
+    font-size: 1vw;
+}
+
+.imdb-rating {
+    padding: 5px;
+    width: fit-content;
+    border-radius: 5px;
+    background-color: #f3ce13;
+    font-weight: bold;
 }
