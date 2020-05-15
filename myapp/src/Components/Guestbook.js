@@ -67,7 +67,6 @@ function Guestbook(props) {
         }
 
         if(errors.length > 0) {
-            console.log(errors.length)  
             alert("ERROR:\n".concat(errors.join("\n")))    
             return;
         }

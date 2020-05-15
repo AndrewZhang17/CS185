@@ -15,11 +15,10 @@ class Movies extends Component {
     }
 
     getMovies() {
-        console.log(ids)
         for(const id of ids) {
             axios({
                 method: 'get',
-                url: "http://www.omdbapi.com/?apikey=f23fd2c8&i=".concat(id),
+                url: "https://www.omdbapi.com/?apikey=f23fd2c8&i=".concat(id),
             })
             .then(
                 (response) => {
@@ -36,11 +35,10 @@ class Movies extends Component {
     }
 
     render() {
-        console.log(this.state.movies[0])
         const movies = this.state.movies.map(m =>
-            <Popup className="popup" trigger={<img src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
+            <Popup className="popup" trigger={<img className="movie-item" alt={m.Title} src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
                 <div className="movie-popup">
-                    <img className="movie-poster" src={m.Poster}/>                        
+                    <img className="movie-poster" alt={m.Title} src={m.Poster}/>                        
                     <div className="movie-info">
                         <h1>{m.Title}</h1>
                         <div className="imdb-rating">IMDB Rating: {m.imdbRating}</div>

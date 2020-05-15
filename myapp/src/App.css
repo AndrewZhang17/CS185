@@ -1,6 +1,5 @@
 html {
-    width: 100vw;
-    overflow-x: hidden;
+    width: 97vw;
 }
 
 .tab-list {
@@ -239,6 +238,10 @@ iframe {
     grid-template-columns: 30% 70%;
     grid-gap: 1em;
     align-items: center;
+}
+
+.movie-item {
+    margin: auto;
 }
 
 .movie-poster {
