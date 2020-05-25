@@ -8,7 +8,8 @@ const firebase = require('firebase')
 
 function Movies(props) {
     const [movies, setMovies] = useState([]);
-    const [lists, setLists] = useState([]);
+    const [lists, setLists] = useState({});
+    const [movieLists, setMovieLists] = useState({});
     const [curlist, setCurList] = useState("");
     const [page, setPage] = useState(0);
     const [newId, setNewId] = useState("");
@@ -21,38 +22,32 @@ function Movies(props) {
         if (!firebase.apps.length) {
             firebase.initializeApp(config);
         }
-        //get a reference to the database
+
         let ref = firebase.database().ref('movies');
 
         ref.on('child_added', (childSnapshot, prevChildKey) => {
-            //this is your call back function
-            //state will be a JSON object after this
-            //set your apps state to contain this data however you like
             const newChild = childSnapshot.val();
-            //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
             setMovies(curMovies => [...curMovies, newChild]);
-        })
+        });
 
         ref.on('child_removed', (childSnapshot) => {
-            //this is your call back function
-            //state will be a JSON object after this
-            //set your apps state to contain this data however you like
             const deletedChild = childSnapshot.val();
-            //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
             setMovies(curMovies => curMovies.filter(m => m.Title != deletedChild.Title));
-        })
+        });
 
         let listRef = firebase.database().ref('lists');
 
-        listRef.on('child_added', (childSnapshot, prevChildKey) => {
-            //this is your call back function
-            //state will be a JSON object after this
-            //set your apps state to contain this data however you like
-            const newChild = childSnapshot.val();
-            //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
-            setLists(curLists => [...curLists, newChild.title]);
-        })
+        listRef.on('value', (dataSnapshot) => {
+            const val = dataSnapshot.val();
+            setLists(val);
+        });
 
+        let movieListsRef = firebase.database().ref('movieLists');
+
+        movieListsRef.on('value', (dataSnapshot) => {
+            const val = dataSnapshot.val();
+            setMovieLists(val);
+        });
     }, [shouldRender])
 
     const addMovie = (evt) => {
@@ -81,8 +76,17 @@ function Movies(props) {
 
     const deleteMovie = (id) => {
         firebase.database().ref('movies').child(id).remove();
-    }
 
+        let updates = {};
+
+        for (var list in movieLists[id]){
+            updates["lists/" + list + "/" + id] = null;
+        }
+        updates["movieLists/" + id] = null;
+
+        firebase.database().ref().update(updates);
+    }
+    
     const createList = (evt) => {
         evt.preventDefault();
 
@@ -92,6 +96,16 @@ function Movies(props) {
 
         setNewList("");
         setPage(0);
+    }
+
+    const createPair = (id, list, target) => {
+        let updates = {
+            ["lists/" + list + "/" + id]: true,
+            ["movieLists/" + id + "/" + list]: true
+        }
+
+        target.value = "";
+        firebase.database().ref().update(updates);
     }
 
     const getPage = () => {
@@ -111,6 +125,17 @@ function Movies(props) {
                             <button className="delete-movie" onClick={() => deleteMovie(m.imdbID)}>
                                 Delete
                             </button>
+                            <select className="movie-btn" onChange={e => createPair(m.imdbID, e.target.value, e.target)}>
+                                <option value="" disabled selected>Add to list:</option>
+                                {Object.keys(lists)
+                                    .filter(l => (
+                                        lists[l][m.imdbID] != true
+                                    ))
+                                    .map(l => (
+                                        <option value={l}>{l}</option>
+                                    ))
+                                }
+                            </select>
                         </div>                        
                     </div>
                 </Popup>
@@ -122,7 +147,8 @@ function Movies(props) {
                     </h1>
                     <div className="movies-menu">
                         <select className="movie-btn" onChange={e => setCurList(e.target.value)}>
-                            {lists.map(l => (
+                            <option value="All">All</option>
+                            {Object.keys(lists).map(l => (
                                 <option value={l}>{l}</option>
                             ))}
                         </select>
@@ -188,6 +214,7 @@ function Movies(props) {
         }
     }
 
+    console.log(lists);
     return getPage();
     
 

@@ -273,10 +273,9 @@ iframe {
     padding: 0.5em;
     margin: 0.25em 0.25em 0.25em;
     box-sizing: border-box;
-    height: 2.5em;
 }
 
-.movie-btn:hover {
+button.movie-btn:hover {
     background-color: #ADB2B3;
     color: black;
 }
