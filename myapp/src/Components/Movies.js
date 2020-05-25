@@ -8,6 +8,10 @@ const firebase = require('firebase')
 
 function Movies(props) {
     const [movies, setMovies] = useState([]);
+    const [list, setList] = useState("");
+    const [page, setPage] = useState(0);
+    const [newId, setNewId] = useState("");
+
     const [shouldRender, setShowRender] = useState(true);
 
     useEffect(() => {
@@ -25,55 +29,115 @@ function Movies(props) {
             const newChild = childSnapshot.val();
             //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
             setMovies(curMovies => [...curMovies, newChild])
-            console.log(newChild.id);
         })
 
     }, [shouldRender])
 
-    const getMovies = () => {
-        for(const id of ids) {
-            axios({
-                method: 'get',
-                url: "https://www.omdbapi.com/?apikey=f23fd2c8&i=".concat(id),
-            })
-            .then(
-                (response) => {
-                    firebase.database().ref('movies').child(response.data.imdbID).set({
-                        imdbID: response.data.imdbID,
-                        Title: response.data.Title,
-                        Poster: response.data.Poster,
-                        imdbRating: response.data.imdbRating,
-                        Director: response.data.Director,
-                        Released: response.data.Released,
-                        Plot: response.data.Plot
-                    });
-                }
+    const addMovie = (evt) => {
+        evt.preventDefault();
+
+        axios({
+            method: 'get',
+            url: "https://www.omdbapi.com/?apikey=f23fd2c8&i=".concat(newId),
+        })
+        .then(
+            (response) => {
+                firebase.database().ref('movies').child(response.data.imdbID).set({
+                    imdbID: response.data.imdbID,
+                    Title: response.data.Title,
+                    Poster: response.data.Poster,
+                    imdbRating: response.data.imdbRating,
+                    Director: response.data.Director,
+                    Released: response.data.Released,
+                    Plot: response.data.Plot
+                });
+            }
+        )
+        setNewId("");
+        setPage(0);
+    }
+
+    const getPage = () => {
+        if (page === 0) {
+            const movs = movies.map(m =>
+                <Popup className="popup" trigger={<img className="movie-item" alt={m.Title} src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
+                    <div className="movie-popup">
+                        <img className="movie-poster" alt={m.Title} src={m.Poster}/>                        
+                        <div className="movie-info">
+                            <h1>{m.Title}</h1>
+                            <div className="imdb-rating">IMDB Rating: {m.imdbRating}</div>
+                            <p><b>Director:</b> {m.Director}</p>
+                            <p><b>Released:</b> {m.Released}</p>
+                            <p><b>Synopsis:</b> {m.Plot}</p>
+                        </div>
+                    </div>
+                </Popup>
             )
+            return (
+                <div>
+                    <h1>
+                        Movies
+                    </h1>
+                    <div className="movies-menu">
+                        <select className="movie-btn" onChange={e => setList(e.target.value)}>
+                            <option value="All">All</option>
+                            <option value="Watched">Watched</option>
+                            <option value="WannaWatch">WannaWatch</option>
+                        </select>
+                        <button className="movie-btn" onClick={() => setPage(1)}>
+                            Add a Movie
+                        </button>
+                        <button className="movie-btn" onClick={() => setPage(2)}>
+                            Create List
+                        </button>
+                        <input className="movie-search" type="text" placeholder="Search.."/>
+                    </div>
+                    <Grid items={movs}/>
+                </div>
+            );
+        }
+        else if (page === 1) {
+            return (
+                <div>
+                    <h1>
+                        Movies
+                    </h1>
+                    <div>
+                        <button className="movie-btn" onClick={() => setPage(0)}>
+                            Back
+                        </button>
+                    </div>
+                    <form className="add-movie" onSubmit={addMovie}>
+                        <h2>
+                            Add a movie!
+                        </h2>
+                        <label>
+                            Enter the IMDb ID of the movie you want to add:
+                            <input type="text" value={newId} onChange={e => setNewId(e.target.value)}/>
+                        </label>
+                        <input type="submit" value="Add Movie" />
+                    </form>
+                </div>
+            );
+        }
+        else if (page === 2) {
+            return (
+                <div>
+                    <h1>
+                        Movies
+                    </h1>
+                    <div>
+                        <button className="movie-btn" onClick={() => setPage(0)}>
+                            Back
+                        </button>
+                    </div>
+                </div>
+            );
         }
     }
 
-    const movs = movies.map(m =>
-        <Popup className="popup" trigger={<img className="movie-item" alt={m.Title} src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
-            <div className="movie-popup">
-                <img className="movie-poster" alt={m.Title} src={m.Poster}/>                        
-                <div className="movie-info">
-                    <h1>{m.Title}</h1>
-                    <div className="imdb-rating">IMDB Rating: {m.imdbRating}</div>
-                    <p><b>Director:</b> {m.Director}</p>
-                    <p><b>Released:</b> {m.Released}</p>
-                    <p><b>Synopsis:</b> {m.Plot}</p>
-                </div>
-            </div>
-        </Popup>
-    )
-    return (
-        <div>
-            <h1>
-                Movies
-            </h1>
-            <Grid items={movs}/>
-        </div>
-    );
+    return getPage();
+    
 
 }
 
