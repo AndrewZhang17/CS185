@@ -8,9 +8,11 @@ const firebase = require('firebase')
 
 function Movies(props) {
     const [movies, setMovies] = useState([]);
-    const [list, setList] = useState("");
+    const [lists, setLists] = useState([]);
+    const [curlist, setCurList] = useState("");
     const [page, setPage] = useState(0);
     const [newId, setNewId] = useState("");
+    const [newList, setNewList] = useState("");
     const [search, setSearch] = useState("");
 
     const [shouldRender, setShowRender] = useState(true);
@@ -21,7 +23,6 @@ function Movies(props) {
         }
         //get a reference to the database
         let ref = firebase.database().ref('movies');
-        var loaded = false;
 
         ref.on('child_added', (childSnapshot, prevChildKey) => {
             //this is your call back function
@@ -39,6 +40,17 @@ function Movies(props) {
             const deletedChild = childSnapshot.val();
             //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
             setMovies(curMovies => curMovies.filter(m => m.Title != deletedChild.Title));
+        })
+
+        let listRef = firebase.database().ref('lists');
+
+        listRef.on('child_added', (childSnapshot, prevChildKey) => {
+            //this is your call back function
+            //state will be a JSON object after this
+            //set your apps state to contain this data however you like
+            const newChild = childSnapshot.val();
+            //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
+            setLists(curLists => [...curLists, newChild.title]);
         })
 
     }, [shouldRender])
@@ -71,6 +83,17 @@ function Movies(props) {
         firebase.database().ref('movies').child(id).remove();
     }
 
+    const createList = (evt) => {
+        evt.preventDefault();
+
+        firebase.database().ref('lists').child(newList).set({
+            title: newList
+        });
+
+        setNewList("");
+        setPage(0);
+    }
+
     const getPage = () => {
         if (page === 0) {
             const movs = movies
@@ -98,10 +121,10 @@ function Movies(props) {
                         Movies
                     </h1>
                     <div className="movies-menu">
-                        <select className="movie-btn" onChange={e => setList(e.target.value)}>
-                            <option value="All">All</option>
-                            <option value="Watched">Watched</option>
-                            <option value="WannaWatch">WannaWatch</option>
+                        <select className="movie-btn" onChange={e => setCurList(e.target.value)}>
+                            {lists.map(l => (
+                                <option value={l}>{l}</option>
+                            ))}
                         </select>
                         <button className="movie-btn" onClick={() => setPage(1)}>
                             Add a Movie
@@ -150,6 +173,16 @@ function Movies(props) {
                             Back
                         </button>
                     </div>
+                    <form className="add-movie" onSubmit={createList}>
+                        <h2>
+                            Create a new list!
+                        </h2>
+                        <label>
+                            Enter the name of the list you want to create:
+                            <input type="text" value={newList} onChange={e => setNewList(e.target.value)}/>
+                        </label>
+                        <input type="submit" value="Create List" />
+                    </form>
                 </div>
             );
         }
