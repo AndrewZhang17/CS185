@@ -11,6 +11,7 @@ function Movies(props) {
     const [list, setList] = useState("");
     const [page, setPage] = useState(0);
     const [newId, setNewId] = useState("");
+    const [search, setSearch] = useState("");
 
     const [shouldRender, setShowRender] = useState(true);
 
@@ -59,7 +60,9 @@ function Movies(props) {
 
     const getPage = () => {
         if (page === 0) {
-            const movs = movies.map(m =>
+            const movs = movies
+                .filter(m => m.Title.toLowerCase().includes(search.toLowerCase()))
+                .map(m =>
                 <Popup className="popup" trigger={<img className="movie-item" alt={m.Title} src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
                     <div className="movie-popup">
                         <img className="movie-poster" alt={m.Title} src={m.Poster}/>                        
@@ -90,7 +93,7 @@ function Movies(props) {
                         <button className="movie-btn" onClick={() => setPage(2)}>
                             Create List
                         </button>
-                        <input className="movie-search" type="text" placeholder="Search.."/>
+                        <input className="movie-search" type="text" placeholder="Search.." value={search} onChange={e => setSearch(e.target.value)}/>
                     </div>
                     <Grid items={movs}/>
                 </div>
