@@ -10,7 +10,7 @@ function Movies(props) {
     const [movies, setMovies] = useState([]);
     const [lists, setLists] = useState({});
     const [movieLists, setMovieLists] = useState({});
-    const [curlist, setCurList] = useState("");
+    const [curList, setCurList] = useState("");
     const [page, setPage] = useState(0);
     const [newId, setNewId] = useState("");
     const [newList, setNewList] = useState("");
@@ -86,7 +86,7 @@ function Movies(props) {
 
         firebase.database().ref().update(updates);
     }
-    
+
     const createList = (evt) => {
         evt.preventDefault();
 
@@ -111,6 +111,7 @@ function Movies(props) {
     const getPage = () => {
         if (page === 0) {
             const movs = movies
+                .filter(m => curList === "" || lists[curList][m.imdbID] === true)
                 .filter(m => m.Title.toLowerCase().includes(search.toLowerCase()))
                 .map(m =>
                 <Popup className="popup" trigger={<img className="movie-item" alt={m.Title} src={m.Poster}/>} modal closeOnDocumentClick lockScroll postion="center center">
@@ -147,7 +148,7 @@ function Movies(props) {
                     </h1>
                     <div className="movies-menu">
                         <select className="movie-btn" onChange={e => setCurList(e.target.value)}>
-                            <option value="All">All</option>
+                            <option value="">All</option>
                             {Object.keys(lists).map(l => (
                                 <option value={l}>{l}</option>
                             ))}
