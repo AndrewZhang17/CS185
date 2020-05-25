@@ -29,7 +29,16 @@ function Movies(props) {
             //set your apps state to contain this data however you like
             const newChild = childSnapshot.val();
             //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
-            setMovies(curMovies => [...curMovies, newChild])
+            setMovies(curMovies => [...curMovies, newChild]);
+        })
+
+        ref.on('child_removed', (childSnapshot) => {
+            //this is your call back function
+            //state will be a JSON object after this
+            //set your apps state to contain this data however you like
+            const deletedChild = childSnapshot.val();
+            //i have previously declared a state variable like this: const [data, setData] = useState([]) so that I can make the below call
+            setMovies(curMovies => curMovies.filter(m => m.Title != deletedChild.Title));
         })
 
     }, [shouldRender])
@@ -58,6 +67,10 @@ function Movies(props) {
         setPage(0);
     }
 
+    const deleteMovie = (id) => {
+        firebase.database().ref('movies').child(id).remove();
+    }
+
     const getPage = () => {
         if (page === 0) {
             const movs = movies
@@ -72,7 +85,10 @@ function Movies(props) {
                             <p><b>Director:</b> {m.Director}</p>
                             <p><b>Released:</b> {m.Released}</p>
                             <p><b>Synopsis:</b> {m.Plot}</p>
-                        </div>
+                            <button className="delete-movie" onClick={() => deleteMovie(m.imdbID)}>
+                                Delete
+                            </button>
+                        </div>                        
                     </div>
                 </Popup>
             )

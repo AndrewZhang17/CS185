@@ -293,3 +293,12 @@ iframe {
 .add-movie {
     margin-top: 1em;
 }
+
+.delete-movie {
+    border: none;
+    outline: none;
+    background-color: #DD4242;
+    color: white;
+    cursor: pointer;
+    padding: 0.75em;
+}
