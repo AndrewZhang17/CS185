@@ -246,7 +246,7 @@ iframe {
 }
 
 .movie-item:hover {
-    opacity: 75%;
+    opacity: 0.8;
 }
 
 .movie-poster {
