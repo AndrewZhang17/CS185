@@ -5,6 +5,7 @@ import Videos from './Videos';
 import Projects from './Projects';
 import Guestbook from './Guestbook';
 import Movies from './Movies';
+import Graph from './Graph';
 
 class Content extends Component {
     displayContent = () => {
@@ -26,6 +27,9 @@ class Content extends Component {
         }
         else if (activeTab === 6) {
             return <Movies/>
+        }
+        else if (activeTab === 7) {
+            return <Graph/>
         }
     }
     render() {
